@@ -552,7 +552,7 @@ resource "aws_dynamodb_table" "coursera-dynamodb-table" {
   write_capacity = 20
   # Add hash key of type String and the RecordNumber attribute
   hash_key = "RecordNumber"
-							  
+
 
   # This will be the UUID and how we uniquely identify records
   #  range_key = "Email"
