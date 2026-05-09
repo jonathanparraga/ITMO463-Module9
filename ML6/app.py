@@ -74,8 +74,24 @@ if messagesInQueue == True:
     # Parse URL retrieved from record to get S3 Object key
     # https://docs.python.org/3/library/urllib.parse.html
     #######################################################################
-    url = urlparse(responseGetDynamoItem['Item']['RAWS3URL']['S'])
+    raw_s3_url = responseGetDynamoItem['Item']['RAWS3URL']['S']
+
+    if not raw_s3_url:
+        print("Error: RAWS3URL is empty. The image may not have been uploaded to S3.")
+        print("Now deleting the message off of the queue...")
+        responseDelMessage = clientSQS.delete_message(
+            QueueUrl=responseURL['QueueUrls'][0],
+            ReceiptHandle=responseMessages['Messages'][0]['ReceiptHandle']
+        )
+        exit(1)
+
+    url = urlparse(raw_s3_url)
     key = url.path.lstrip('/')
+
+    if not key:
+        print("Error: Could not parse S3 object key from URL: " + raw_s3_url)
+        exit(1)
+
     print("S3 Object Key name: " + key)
 
     #######################################################################
