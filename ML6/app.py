@@ -214,19 +214,19 @@ if messagesInQueue == True:
     #############################################################################
     # Add code to update the RAWS3URL to have the value: done after the image is processed
     #############################################################################
-    print("Updating RAWS3URL field to done for record: " + str(ID) + "...")
-    cnx = mysql.connector.connect(host=hosturl, user=uname, password=pword, database='company')
-    cursor = cnx.cursor()
+    print("Updating RAWS3URL field to done for record: " + str(responseGetDynamoItem['Item']['RecordNumber']['S']) + "...")
 
-    update = ("UPDATE entries SET RAWS3URL = 'done' WHERE ID = " + str(ID) + ";")
-    print(update)
-
-    print("Executing the UPDATE command against the DB...")
-    cursor.execute(update)
-    cnx.commit()
-
-    cursor.close()
-    cnx.close()   
+    # Update DynamoDB item to mark processing as done
+    try:
+        responseUpdate = responseDynamo.update_item(
+            TableName=responseDynamoTables['TableNames'][0],
+            Key={'RecordNumber': {'S': responseGetDynamoItem['Item']['RecordNumber']['S']}},
+            UpdateExpression='SET RAWS3URL = :val',
+            ExpressionAttributeValues={':val': {'S': 'done'}}
+        )
+        print("Successfully updated DynamoDB record")
+    except ClientError as e:
+        logging.error(e)   
 
     #############################################################################
     # Extra challenge, not gradeded...
