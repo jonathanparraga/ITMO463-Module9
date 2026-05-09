@@ -5,12 +5,7 @@
 ##############################################################################
 # Installing Python Pip and library Dependencies
 ##############################################################################
-sudo apt update -y
-sudo apt install -y python3-dev python3-setuptools python3-pip mysql-client
-sudo -u ubuntu python3 -m pip install pip --upgrade
-python3 -m pip install pillow
-python3 -m pip install boto3
-python3 -m pip install mysql-connector-python
+
 sudo apt update -y
 sudo apt install -y python3-dev python3-setuptools python3-pip mysql-client
 sudo /usr/bin/python3 -m pip install --break-system-packages --upgrade pip
