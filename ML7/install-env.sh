@@ -36,20 +36,19 @@ cd /home/ubuntu
 sudo -u ubuntu npm install @aws-sdk/client-dynamodb @aws-sdk/client-sqs @aws-sdk/client-s3 @aws-sdk/client-sns express multer multer-s3 uuid ip
 sudo npm install pm2 -g
 
+
 # Command to clone your private repo via SSH usign the Private key
 ####################################################################
 # Note - change "hajek.git" to be your private repo name (hawk ID) #
 ####################################################################
-#sudo -u ubuntu git clone git@github.com:jonathanparraga/ITMO463-Module7.git
-sudo -u ubuntu git clone https://github.com/jonathanparraga/ITMO463-Module7.git /home/ubuntu/ITMO463-Module7
+sudo -u ubuntu git clone git@github.com:jonathanparraga/ITMO463-Module9.git
 
 # Start the nodejs app where it is located via PM2
 # https://pm2.keymetrics.io/docs/usage/quick-start
-cd /home/ubuntu/ITMO463-Module7
+cd /home/ubuntu/ITMO463-Module9/ML7
 
-sudo -u ubuntu npm install @aws-sdk/client-dynamodb @aws-sdk/client-sqs @aws-sdk/client-s3 @aws-sdk/client-sns express multer multer-s3 uuid ip
 
-sudo cp /home/ubuntu/ITMO463-Module7/default /etc/nginx/sites-available/default
+sudo cp /home/ubuntu/ITMO463-Module9/ML7/default /etc/nginx/sites-available/default
 sudo systemctl daemon-reload
 sudo systemctl restart nginx
 

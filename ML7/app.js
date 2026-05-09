@@ -20,19 +20,19 @@ const {
 } = require("@aws-sdk/client-sns");
 
 const { 
-  ListTablesCommand, 
-  DynamoDBClient, 
-  ScanCommand, 
-  PutItemCommand,
-  QueryCommand 
-} = require("@aws-sdk/client-dynamodb");
-
-const {
   SQSClient,
   GetQueueUrlCommand,
   SendMessageCommand,
   ListQueuesCommand,
 } = require("@aws-sdk/client-sqs");
+
+const {
+  ListTablesCommand,
+  DynamoDBClient,
+  ScanCommand,
+  PutItemCommand,
+  QueryCommand,
+} = require("@aws-sdk/client-dynamodb");
 
 // https://www.npmjs.com/package/uuid
 const { v4: uuidv4 } = require('uuid');
@@ -194,6 +194,7 @@ const getListOfSnsTopics = async () => {
     return results;
   } catch (err) {
     console.error(err);
+	throw err;		  
   }
 };
 
@@ -214,6 +215,7 @@ const getSnsTopicArn = async () => {
     return results;
   } catch (err) {
     console.error(err);
+	throw err;		  
   }
 };
 

@@ -192,25 +192,7 @@ resource "aws_iam_role_policy" "s3_fullaccess_policy" {
 }
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy
-resource "aws_iam_role_policy" "dynamodb_fullaccess_policy" {
-  name = "dynamodb_fullaccess_policy"
-  role = aws_iam_role.role.id
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "dynamodb:*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-}
+# Add DynamoDB full access policy
 
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy
 resource "aws_iam_role_policy" "sns_fullaccess_policy" {
@@ -245,6 +227,26 @@ resource "aws_iam_role_policy" "sqs_fullaccess_policy" {
       {
         Action = [
           "sqs:*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "dynamodb_fullaccess_policy" {
+  name = "dynamodb_fullaccess_policy"
+  role = aws_iam_role.role.id
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "dynamodb:*",
         ]
         Effect   = "Allow"
         Resource = "*"
@@ -340,11 +342,6 @@ resource "aws_autoscaling_group" "asg" {
     propagate_at_launch = true
   }
 
-  tag {
-    key                 = "Name"
-    value               = var.tag-name
-    propagate_at_launch = true
-  }
   launch_template {
     id      = aws_launch_template.lt.id
     version = "$Latest"
@@ -523,9 +520,9 @@ data "aws_iam_policy_document" "allow_access_from_another_account-finished" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sqs_queue
 resource "aws_sqs_queue" "coursera_queue" {
   name                      = var.sqs-name
-  delay_seconds             = 3
+  delay_seconds             = 10
   message_retention_seconds = 86400
-  receive_wait_time_seconds = 3
+  receive_wait_time_seconds = 5
   # Default is 30 seconds
   visibility_timeout_seconds = 300
 
@@ -553,19 +550,22 @@ resource "aws_dynamodb_table" "coursera-dynamodb-table" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 20
   write_capacity = 20
-  hash_key       = "RecordNumber"
-  #range_key      = "datetime"
+  # Add hash key of type String and the RecordNumber attribute
+  hash_key = "RecordNumber"
+							  
 
   # This will be the UUID and how we uniquely identify records
+  #  range_key = "Email"
   attribute {
     name = "RecordNumber"
     type = "S"
   }
 
-  #attribute {
-  #  name = "datetime"
-  #  type = "N"
-  #}
+  #  attribute {
+  #    name = "Email"
+  #    type = "S"
+  #  }
+  #
   tags = {
     Name        = var.tag-name
     Environment = "production"
