@@ -121,7 +121,7 @@ const listObjects = async (req, res) => {
     const contents = results.Contents || [];
 
     for (let i = 0; i < contents.length; i++) {
-      url.push("https://" + results.Name + ".s3.amazonaws.com/" + contents[i].Key);
+      url.push("https://" + bucketName + ".s3.amazonaws.com/" + contents[i].Key);
     }
 
     console.log("URL: ", url);
@@ -230,7 +230,7 @@ const getDBIdentifier = async () => {
           return rows;
         } catch (err) {
           console.error(err);
-		throw err;	  
+          throw err;
         }
       };
       
@@ -320,8 +320,7 @@ const getDBIdentifier = async () => {
           console.error(err);
     if (!res.headersSent) {
       res.status(500).send("Could not load database records.");
-    };
-					   
+    }
   }
  };
       
@@ -388,7 +387,7 @@ let email = req.body["email"];
 //
 
 const getUname = async () => {
-  
+
   //console.log("Secret ARN: ",secretARN.SecretList[0].ARN);
   const params = {
     SecretId: "uname",
@@ -401,7 +400,7 @@ const getUname = async () => {
     return results;
   } catch (err) {
     console.error(err);
-	throw err;		  
+    throw err;
   }
 };
 
@@ -412,7 +411,7 @@ const getUname = async () => {
 //
 
 const getPword = async () => {
-  
+
   //console.log("Secret ARN: ",secretARN.SecretList[0].ARN);
   const params = {
     SecretId: "pword",
@@ -425,7 +424,7 @@ const getPword = async () => {
     return results;
   } catch (err) {
     console.error(err);
-	throw err;		  
+    throw err;
   }
 };
 
@@ -444,7 +443,7 @@ const getListOfSnsTopics = async () => {
     return results;
   } catch (err) {
     console.error(err);
-	throw err;		  
+    throw err;
   }
 };
 
@@ -465,7 +464,7 @@ const getSnsTopicArn = async () => {
     return results;
   } catch (err) {
     console.error(err);
-	throw err;		  
+    throw err;
   }
 };
 
@@ -488,7 +487,7 @@ const subscribeEmailToSNSTopic = async () => {
     return results;
   } catch (err) {
     console.error(err);
-	throw err;		  
+    throw err;
   }
 };
 
@@ -521,7 +520,7 @@ const sendMessageViaEmail = async (req, res) => {
     return results;
   } catch (err) {
     console.error(err);
-    throw err;			  
+    throw err;
   }
 };
 
@@ -579,9 +578,9 @@ app.get("/gallery", async function (req, res) {
 });
 
 app.get("/db", async function (req, res) {
-													 
+
   await selectAndPrintRecord(req, res);
-});;
+});
       
 app.post("/upload", upload.array("uploadFile", 1), async function (req, res, next) {
   try {
