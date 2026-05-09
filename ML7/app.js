@@ -32,7 +32,7 @@ const {
   GetQueueUrlCommand,
   SendMessageCommand,
   ListQueuesCommand,
-} = require("@aws-sdk/client-sqs")
+} = require("@aws-sdk/client-sqs");
 
 // https://www.npmjs.com/package/uuid
 const { v4: uuidv4 } = require('uuid');
@@ -110,18 +110,20 @@ const listBuckets = async () => {
 // 
 const listObjects = async (req,res) => {
 	const client = new S3Client({region: REGION });
-	const command = new ListObjectsCommand(await listBuckets());
+	const bucketParams = await listBuckets();
+	const command = new ListObjectsCommand(bucketParams);
 	try {
 		const results = await client.send(command);
 		console.log("List Objects Results: ", results);
         var url=[];
         for (let i = 0; i < results.Contents.length; i++) {
-                url.push("https://" + results.Name + ".s3.amazonaws.com/" + results.Contents[i].Key);
-        }        
+                url.push("https://" + bucketParams.Bucket + ".s3.amazonaws.com/" + results.Contents[i].Key);
+        }
 		console.log("URL: " , url);
 		return url;
 	} catch (err) {
 		console.error(err);
+		throw err;
 	}
 };
 
@@ -137,9 +139,9 @@ const getPostedData = async (req,res) => {
         for (let i = 0; i < s3URLs.length; i++) {
           if(s3URLs[i].includes(fname)){
               s3URL = s3URLs[i];
-          break
+              break;
+          }
         }
-    }
 	res.write('Successfully uploaded ' + req.files.length + ' files!')
 
 	// Use this code to retrieve the value entered in the username field in the index.html
@@ -220,9 +222,7 @@ const getSnsTopicArn = async () => {
 //
 const subscribeEmailToSNSTopic = async (req, res) => {
   let topicArn = await getListOfSnsTopics();
-  let email = req.body['email']
   const params = {
-    // CHANGE ENDPOINT EMAIL TO YOUR OWN
     Endpoint: req.body['email'],
     Protocol: "email",
     TopicArn: topicArn.Topics[0].TopicArn,
@@ -235,6 +235,7 @@ const subscribeEmailToSNSTopic = async (req, res) => {
     return results;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };
 
@@ -246,11 +247,12 @@ const listSqsQueueURL = async(req,res) => {
   const input = {};
   const command = new ListQueuesCommand(input);
   try {
-  const response = await client.send(command);
-  console.log(response['QueueUrls'][0]);
-  return response['QueueUrls'][0];
+    const response = await client.send(command);
+    console.log(response['QueueUrls'][0]);
+    return response['QueueUrls'][0];
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };
 
@@ -282,6 +284,7 @@ console.log("Sent RecordNumber: " + recordID);
     return response;
   } catch (err) {
     console.error(err);
+    throw err;
   }
 };
 
@@ -304,14 +307,14 @@ const retrieveLastDynamoRecordID = async (recNum) => {
   });
 
   // https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/the-response-object.html
-  // The V2 documents show to use the .S to access the value of the KV pair 
+  // The V2 documents show to use the .S to access the value of the KV pair
   // https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/the-response-object.html
   console.log("About to issue QueryCommand...")
   const response = await client.send(command);
   console.log("last record: " + JSON.stringify(response.Items));
   console.log("last RecordNumber: " + JSON.stringify(response.Items[0].RecordNumber.S));
-  return(String(response.Items[0].RecordNumber.S))
-}
+  return(String(response.Items[0].RecordNumber.S));
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // DynamoDB Examples
@@ -366,22 +369,21 @@ Stat INT(1) DEFAULT 0, -- Job status, not done is 0, done is 1
 RAWS3URL VARCHAR(200), -- set the returned S3URL here
 FINSIHEDS3URL VARCHAR(200)
 */
-// Will go and query the URL of the just posted image to S3 Raw Bucket
+  // Will go and query the URL of the just posted image to S3 Raw Bucket
   try {
-	let s3URLs = await listObjects(req,res);
-        const fname = req.files[0].originalname;
-        var s3URL = "URL not generated due to technical issue.";
-        console.log("Finding S3URLs...")
-        for (let i = 0; i < s3URLs.length; i++) {
-          if(s3URLs[i].includes(fname)){
-              s3URL = s3URLs[i];
-          break
-        }
-    } 
-  }
-    catch (err) {
-      s3URL = "";
-      console.error(err);
+    let s3URLs = await listObjects(req,res);
+    const fname = req.files[0].originalname;
+    var s3URL = "URL not generated due to technical issue.";
+    console.log("Finding S3URLs...")
+    for (let i = 0; i < s3URLs.length; i++) {
+      if(s3URLs[i].includes(fname)){
+        s3URL = s3URLs[i];
+        break;
+      }
+    }
+  } catch (err) {
+    s3URL = "";
+    console.error(err);
   }
   console.log("Listing S3 urls and UUID...")
 // generate a UUID for RecordNumber
@@ -431,7 +433,7 @@ FINSIHEDS3URL VARCHAR(200)
 
 console.log("Finished inserting item...");
 console.log("Returning: " + RecordNumber);
-const getSendMessageToQueue = await sendMessageToQueue(res,req,RecordNumber);
+const getSendMessageToQueue = await sendMessageToQueue(req,res,RecordNumber);
 
 return(RecordNumber);
 };
@@ -449,11 +451,11 @@ app.get("/", function (req, res) {
       });
       
       app.post("/upload", upload.array("uploadFile", 1), function (req, res, next) {
-        (async () => { await getPostedData(req, res);})();
+        (async () => { await getPostedData(req, res); })();
         (async () => { await getListOfSnsTopics(req, res); })();
-        (async () => { await getSnsTopicArn() })();
-        (async () => { await subscribeEmailToSNSTopic(req, res) } ) ();
-        (async () => { await putDynamoItem(req, res)} ) ();
+        (async () => { await getSnsTopicArn(); })();
+        (async () => { await subscribeEmailToSNSTopic(req, res); })();
+        (async () => { await putDynamoItem(req, res); })();
       });
       
       app.get("/dynamodb", function (req, res) {
