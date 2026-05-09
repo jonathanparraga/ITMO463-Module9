@@ -72,10 +72,14 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_traffic_ipv4" {
 }
 
 data "aws_security_group" "coursera-project" {
-    depends_on = [ aws_security_group.allow_http ]
-    filter {
-    name = "tag:Name"
-    values = [var.tag-name]
+  filter {
+    name   = "tag:Name"
+    values = ["module-05"]
+  }
+
+  filter {
+    name   = "vpc-id"
+    values = [aws_vpc.project.id]
   }
 }
 
