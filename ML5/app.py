@@ -80,10 +80,10 @@ if messagesInQueue == True:
     cursor.execute(query, [(responseMessages['Messages'][0]['Body'])])
 
     print("Printing out all the fields in the record...")
-    for (ID, RecordNumber, CustomerName, Email, Phone, Stat, RAWS3URL, FINSIHEDS3URL) in cursor:
+    for (ID, RecordNumber, CustomerName, Email, Phone, Stat, RAWS3URL, FINISHEDS3URL) in cursor:
         print("ID: " + str(ID) + " RecordNumber: " + str(RecordNumber) + " CustomerName: " + CustomerName )
         print("Email: " + Email + " Phone: " + str(Phone) + " Status: " + str(Stat))
-        print("Raw S3 URL: " + str(RAWS3URL) + " Finished URL: " + str(FINSIHEDS3URL))
+        print("Raw S3 URL: " + str(RAWS3URL) + " Finished URL: " + str(FINISHEDS3URL))
 
     cursor.close()
     cnx.close()
@@ -181,7 +181,7 @@ if messagesInQueue == True:
     cnx = mysql.connector.connect(host=hosturl, user=uname, password=pword, database='company')
     cursor = cnx.cursor()
 
-    update = ("UPDATE entries SET FINSIHEDS3URL = '" + str(responsePresigned) + "' WHERE ID = " + str(ID) + ";")
+    update = ("UPDATE entries SET FINISHEDS3URL = '" + str(responsePresigned) + "' WHERE ID = " + str(ID) + ";")
     print(update)
 
     print("Executing the UPDATE command against the DB...")
