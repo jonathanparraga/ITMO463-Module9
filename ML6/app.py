@@ -214,17 +214,20 @@ if messagesInQueue == True:
     #############################################################################
     # Add code to update the RAWS3URL to have the value: done after the image is processed
     #############################################################################
-    print("Updating RAWS3URL field to done for record: " + str(responseGetDynamoItem['Item']['RecordNumber']['S']) + "...")
+    print("Updating DynamoDB record with processed image URL...")
 
-    # Update DynamoDB item to mark processing as done
+    # Update DynamoDB item to mark processing as done and save finished URL
     try:
         responseUpdate = responseDynamo.update_item(
             TableName=responseDynamoTables['TableNames'][0],
             Key={'RecordNumber': {'S': responseGetDynamoItem['Item']['RecordNumber']['S']}},
-            UpdateExpression='SET RAWS3URL = :val',
-            ExpressionAttributeValues={':val': {'S': 'done'}}
+            UpdateExpression='SET RAWS3URL = :rawval, FINSIHEDS3URL = :finval',
+            ExpressionAttributeValues={
+                ':rawval': {'S': 'done'},
+                ':finval': {'S': responsePresigned}
+            }
         )
-        print("Successfully updated DynamoDB record")
+        print("Successfully updated DynamoDB record with finished image URL")
     except ClientError as e:
         logging.error(e)   
 
