@@ -4,7 +4,7 @@ imageid                = "ami-018a96c79ce9e5447"
 # Use t2.micro for the AWS Free Tier
 instance-type          = "t3.micro"
 key-name               = "EC2-ITMO444-Module2-Lab"
-vpc_security_group_ids = "sg-07fdd6e2ff6d14a4f"
+vpc_security_group_ids = "sg-008d54d494f9c6aec" 
 tag-name               = "module-05"
 user-sns-topic         = "jp-sns-topic"
 elb-name               = "jp-elb"
