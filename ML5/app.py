@@ -233,13 +233,6 @@ if messagesInQueue == True:
     # Graded component
     # Add code to update the RAWS3URL to have the value: done after the image is processed
     #############################################################################
-
-
-
-    #############################################################################
-    # Extra challenge, not graded...
-    # Could you add code to unsubscribe your email from the Topic once you received the image?
-    #############################################################################
     print("Updating RAWS3URL field to done for record: " + str(ID) + "...")
     cnx = mysql.connector.connect(host=hosturl, user=uname, password=pword, database='company')
     cursor = cnx.cursor()
@@ -253,3 +246,8 @@ if messagesInQueue == True:
 
     cursor.close()
     cnx.close()                                                                       
+
+    #############################################################################
+    # Extra challenge, not graded...
+    # Could you add code to unsubscribe your email from the Topic once you received the image?
+    #############################################################################

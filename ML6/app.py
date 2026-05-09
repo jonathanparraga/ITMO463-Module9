@@ -39,16 +39,19 @@ responseMessages = clientSQS.receive_message(
 try:
   responseMessages['Messages']
   messagesInQueue = True
-except:
+except KeyError:
   print("No messages found on the queue -- try to upload one image to your app...")
   exit(0) 
 
 if messagesInQueue == True:
     print("Message body content: " + str(responseMessages['Messages'][0]['Body']) + "...")
     print("Proceeding assuming there are messages on the queue...")
-    
+
+    # Get DynamoDB table names
+    responseDynamoTables = responseDynamo.list_tables()
+
     # Selecting all of the Items data for a particular RecordNumber
-    responseGetDynamoItem = clientDynamo.get_item(
+    responseGetDynamoItem = responseDynamo.get_item(
        TableName=responseDynamoTables['TableNames'][0],
        Key={ 'RecordNumber': { 'S': responseMessages['Messages'][0]['Body'] }},
        ConsistentRead=True
@@ -79,9 +82,15 @@ if messagesInQueue == True:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/list_buckets.html
     responseS3 = clientS3.list_buckets()
 
+    BUCKET_NAME = None
     for n in range(0,len(responseS3['Buckets'])):
         if "raw" in responseS3['Buckets'][n]['Name']:
             BUCKET_NAME = responseS3['Buckets'][n]['Name']
+            break
+
+    if BUCKET_NAME is None:
+        print("Error: No raw bucket found!")
+        exit(1)
 
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3/client/get_object.html
     responseGetObject = clientS3.get_object(
@@ -116,15 +125,21 @@ if messagesInQueue == True:
     # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-uploading-files.html
     # Upload the file
     print("Pushing modified image to Finished S3 bucket...")
+    FIN_BUCKET_NAME = None
     for n in range(0,len(responseS3['Buckets'])):
       if "finished" in responseS3['Buckets'][n]['Name']:
         FIN_BUCKET_NAME = responseS3['Buckets'][n]['Name']
+        break
+
+    if FIN_BUCKET_NAME is None:
+        print("Error: No finished bucket found!")
+        exit(1)
 
     try:
         responseS3Put = clientS3.upload_file(file_name, FIN_BUCKET_NAME, key)
     except ClientError as e:
         logging.error(e)
-    
+
     # Generate Presigned URL
     # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html
     print("Generating presigned S3 URL...")
@@ -183,8 +198,19 @@ if messagesInQueue == True:
     #############################################################################
     # Add code to update the RAWS3URL to have the value: done after the image is processed
     #############################################################################
+    print("Updating RAWS3URL field to done for record: " + str(ID) + "...")
+    cnx = mysql.connector.connect(host=hosturl, user=uname, password=pword, database='company')
+    cursor = cnx.cursor()
 
+    update = ("UPDATE entries SET RAWS3URL = 'done' WHERE ID = " + str(ID) + ";")
+    print(update)
 
+    print("Executing the UPDATE command against the DB...")
+    cursor.execute(update)
+    cnx.commit()
+
+    cursor.close()
+    cnx.close()   
 
     #############################################################################
     # Extra challenge, not gradeded...

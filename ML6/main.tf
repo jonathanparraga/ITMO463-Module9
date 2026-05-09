@@ -548,7 +548,7 @@ resource "aws_instance" "backend" {
   iam_instance_profile   = aws_iam_instance_profile.coursera_profile.name
 
   tags = {
-    Name = var.tag-name,
+    Name = var.tag-name
     Type = "backend"
   }
 }
@@ -570,17 +570,17 @@ resource "aws_dynamodb_table" "coursera-dynamodb-table" {
   # Add hash key of type String and the RecordNumber attribute
   hash_key = "RecordNumber"
   # This will be the UUID and how we uniquely identify records
-#  range_key = "Email"
+  #  range_key = "Email"
   attribute {
     name = "RecordNumber"
     type = "S"
   }
 
-#  attribute {
-#    name = "Email"
-#    type = "S"
-#  }
-#
+  #  attribute {
+  #    name = "Email"
+  #    type = "S"
+  #  }
+  #
   tags = {
     Name        = var.tag-name
     Environment = "production"
@@ -596,7 +596,7 @@ resource "aws_dynamodb_table_item" "insert-sample-record" {
   depends_on = [aws_dynamodb_table.coursera-dynamodb-table]
   table_name = aws_dynamodb_table.coursera-dynamodb-table.name
   hash_key   = aws_dynamodb_table.coursera-dynamodb-table.hash_key
-# range_key  = aws_dynamodb_table.coursera-dynamodb-table.range_key
+  # range_key  = aws_dynamodb_table.coursera-dynamodb-table.range_key
 
   item = <<ITEM
 {
